@@ -1,6 +1,9 @@
 import unittest
+
+import application.GameInstance
 from application.Riddle import Riddle, RiddleManager
 from application.JsonLoader import ConfigLoader
+from application.GameInstance import GameInstanceManager, GameInstanceException
 
 
 class RiddleTests(unittest.TestCase):
@@ -145,4 +148,21 @@ class JsonLoaderTests(unittest.TestCase):
 
     def test_get_riddles_count(self):
         self.assertEqual(len(self.json_config_loader.get_riddles()), 3)
+
+
+class GameInstanceManageTests(unittest.TestCase):
+    DUMMY_GAME = "DUMMY_GAME"
+    MAX_GAMES = 1
+
+    def setUp(self):
+        self.game_instance_manager = GameInstanceManager(1)
+
+    def test_get_game_key(self):
+        self.assertIsNotNone(self.game_instance_manager.get_new_game_key())
+
+    def test_add_game(self):
+        game_key = self.game_instance_manager.get_new_game_key()
+        self.game_instance_manager.set_game_instance(game_key, self.DUMMY_GAME)
+        self.assertEqual(self.game_instance_manager.get_game(game_key), self.DUMMY_GAME)
+
 

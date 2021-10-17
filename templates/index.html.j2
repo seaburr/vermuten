@@ -2,9 +2,9 @@
 
 <html>
 <head>
-    <title>{{ title }}</title>
+    <title>You are playing game:{{ game_key }}</title>
 </head>
-<link rel="stylesheet" href="./static/style.css">
+<link rel="stylesheet" href="../../static/style.css">
 <h1>
     Riddle #{{ riddle_id }}
 </h1>
@@ -12,9 +12,9 @@
 <h2>
     {{ riddle }}
 </h2>
-  <img src="./static/{{ image_name }}">
+  <img src="../../static/{{ image_name }}">
 {% if not advance %}
-    <form action="/">
+    <form action="/play/{{ game_key }}">
       <label for="guess">Guess:</label>
       <input type="text" id="guess" name="guess" autocomplete="off">
       <input type="submit" value="Submit">
@@ -28,13 +28,6 @@
 <h4>
     {{ response }}
 </h4>
-{% endif %}
-<br>
-<br>
-{% if advance %}
-<div class="center">
-    <a href="/" class="button">Next Riddle</a>
-</div>
 {% endif %}
 <!--Hello clever kids! There is no client-side code, cache, or cookies that hold answers.-->
 </html>
