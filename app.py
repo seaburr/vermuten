@@ -20,7 +20,8 @@ game_instances = GameInstanceManager(5)
 
 @app.route("/")
 def riddle():
-    return "Not implemented. Go go /new to create a new game!"
+    base_url = request.base_url
+    return f"Not implemented. Go go {base_url}/new to create a new game!"
 
 
 @app.route("/new")
