@@ -15,28 +15,26 @@ logging.basicConfig(level=logging.INFO, format=logging_format)
 
 app = Flask(__name__)
 config_file = os.getenv("VERMUTEN_CONFIG")
-game_instances = GameInstanceManager(5)
+max_games = 5
+game_instances = GameInstanceManager(max_games)
 
 
 @app.route("/")
 def riddle():
-    base_url = request.base_url
-    return f"Not implemented. Go go {base_url}/new to create a new game!"
-
-
-@app.route("/new")
-def new_game():
-    game_key = game_instances.get_new_game_key()
+    game_key, admin_key = game_instances.get_game_key_set()
     config_loader = ConfigLoader(config_file)
     game = config_loader.get_riddle_manager()
-    game_instances.set_game_instance(game_key, game)
-    return f"Game key is <b>{game_key}</b>. Go to /play/{game_key} to begin."
+    game_instances.set_game_instance(game_key, admin_key, game)
+    play_url = url_for("play", game_key=game_key)
+    admin_url = url_for("progress", admin_key=admin_key)
+    return f"Game key is <b>{game_key}</b> and admin key is <b>{admin_key}</b>. Go to {play_url} to play.<br>Go to {admin_url} to manage."
 
 
 @app.route("/play/<game_key>")
 def play(game_key):
+    base_url = request.base_url
     guess = request.args.get("guess")
-    riddle_manager = game_instances.get_game(game_key)
+    riddle_manager = game_instances.get_game_by_game_key(game_key)
     current_riddle = riddle_manager.get_current_riddle()
     riddle_id = riddle_manager.get_current_riddle_number()
     if guess is None and current_riddle is not None:
@@ -79,16 +77,18 @@ def reset(game_key):
     return redirect(url_for("play", game_key=game_key))
 
 
-@app.route("/admin/<game_key>/reset")
-def reset_admin_page(game_key):
-    riddle_manager = game_instances.get_game(game_key)
+@app.route("/admin/<admin_key>/reset")
+def reset_admin_page(admin_key):
+    riddle_manager = game_instances.get_game_by_admin_key(admin_key)
     riddle_manager.reset_progress()
-    return redirect(url_for("progress", game_key=game_key))
+    return redirect(url_for("progress", admin_key=admin_key))
 
 
-@app.route("/admin/<game_key>")
-def progress(game_key):
-    riddle_manager = game_instances.get_game(game_key)
+@app.route("/admin/<admin_key>")
+def progress(admin_key):
+    base_url = request.base_url
+    riddle_manager = game_instances.get_game_by_admin_key(admin_key)
+    game_key = game_instances.get_game_key_by_admin_key(admin_key)
     return render_template(
         "progress.html.j2",
         game_key=game_key,

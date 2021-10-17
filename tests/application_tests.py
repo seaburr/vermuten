@@ -157,12 +157,24 @@ class GameInstanceManageTests(unittest.TestCase):
     def setUp(self):
         self.game_instance_manager = GameInstanceManager(1)
 
-    def test_get_game_key(self):
-        self.assertIsNotNone(self.game_instance_manager.get_new_game_key())
+    def test_get_game_key_set(self):
+        self.assertIsNotNone(self.game_instance_manager.get_game_key_set())
 
     def test_add_game(self):
-        game_key = self.game_instance_manager.get_new_game_key()
-        self.game_instance_manager.set_game_instance(game_key, self.DUMMY_GAME)
-        self.assertEqual(self.game_instance_manager.get_game(game_key), self.DUMMY_GAME)
+        game_key, admin_key = self.game_instance_manager.get_game_key_set()
+        self.game_instance_manager.set_game_instance(game_key, admin_key, self.DUMMY_GAME)
+        self.assertEqual(self.game_instance_manager.get_game_by_game_key(game_key), self.DUMMY_GAME)
+
+    def test_get_game_by_admin_key(self):
+        game_key, admin_key = self.game_instance_manager.get_game_key_set()
+        self.game_instance_manager.set_game_instance(game_key, admin_key, self.DUMMY_GAME)
+        self.assertEqual(self.game_instance_manager.get_game_by_admin_key(admin_key), self.DUMMY_GAME)
+
+    def test_get_game_key_by_admin_key(self):
+        game_key, admin_key = self.game_instance_manager.get_game_key_set()
+        self.game_instance_manager.set_game_instance(game_key, admin_key, self.DUMMY_GAME)
+        self.assertEqual(self.game_instance_manager.get_game_key_by_admin_key(admin_key), game_key)
+
+
 
 

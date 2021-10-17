@@ -13,31 +13,51 @@ class GameInstanceManager(object):
 
     def __init__(self, max_games):
         self.max_games = max_games
+        self.used_keys = list()
         self.game_instances = dict()
+        self.game_admins = dict()
 
-    def get_new_game_key(self):
-        if len(self.game_instances) >= self.max_games:
-            logging.error(f"There are already {len(self.game_instances)} active and only {self.max_games} are allowed.")
-            raise GameInstanceException
+    def _generate_key(self):
         new_game_key = ""
-        while new_game_key == "" and new_game_key not in self.game_instances:
+        while new_game_key == "" and new_game_key not in self.used_keys:
             for i in range(self.GAME_KEY_LENGTH):
                 i -= 1
                 new_game_key += "".join(random.choice(string.hexdigits))
+        self.used_keys.append(new_game_key)
         return new_game_key.lower()
 
-    def set_game_instance(self, game_key, game):
-        self.game_instances[game_key] = game
+    def get_game_key_set(self):
+        return self._generate_key(), self._generate_key()
 
-    def get_game(self, game_key):
+    def set_game_instance(self, game_key, admin_key, game):
+        self.game_instances[game_key] = game
+        self.game_admins[admin_key] = game_key
+
+    def get_game_by_game_key(self, game_key):
         if game_key in self.game_instances:
             return self.game_instances[game_key]
         else:
             logging.error(f"Could not find a game instance by key {game_key}")
             raise GameInstanceException
 
-    def delete_game_instance(self, game_key):
+    def get_game_by_admin_key(self, admin_key):
+        if admin_key in self.game_admins:
+            game_key = self.game_admins[admin_key]
+            return self.game_instances[game_key]
+        else:
+            logging.error(f"Could not find a game instance by key {admin_key}")
+            raise GameInstanceException
+
+    def get_game_key_by_admin_key(self, admin_key):
+        if admin_key in self.game_admins:
+            return self.game_admins[admin_key]
+        else:
+            logging.error(f"Could not find a game key by admin key {admin_key}")
+            raise GameInstanceException
+
+    def delete_game_instance(self, game_key, admin_key):
         self.game_instances.pop(game_key)
+        self.game_admins.pop(admin_key)
 
 
 
