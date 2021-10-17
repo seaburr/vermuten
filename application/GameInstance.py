@@ -30,8 +30,12 @@ class GameInstanceManager(object):
         return self._generate_key(), self._generate_key()
 
     def set_game_instance(self, game_key, admin_key, game):
-        self.game_instances[game_key] = game
-        self.game_admins[admin_key] = game_key
+        if len(self.game_instances) < self.max_games:
+            self.game_instances[game_key] = game
+            self.game_admins[admin_key] = game_key
+        else:
+            logging.error(f"There are too many active games right now.")
+            raise GameInstanceException
 
     def get_game_by_game_key(self, game_key):
         if game_key in self.game_instances:
