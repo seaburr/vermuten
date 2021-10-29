@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO, format=logging_format)
 
 app = Flask(__name__)
 config_file = os.getenv("VERMUTEN_CONFIG")
-max_games = 5
+max_games = 50
 game_instances = GameInstanceManager(max_games)
 
 
@@ -24,19 +24,24 @@ def riddle():
     game_key, admin_key = game_instances.get_game_key_set()
     config_loader = ConfigLoader(config_file)
     game = config_loader.get_riddle_manager()
-    game_instances.set_game_instance(game_key, admin_key, game)
+    try:
+        game_instances.set_game_instance(game_key, admin_key, game)
+    except:
+        logging.warning("Deleting the oldest game instance.")
+        game_instances.delete_oldest_game()
+        game_instances.set_game_instance(game_key, admin_key, game)
     play_url = url_for("play", game_key=game_key)
     admin_url = url_for("progress", admin_key=admin_key)
     return render_template("landing.html.j2",
                            game_key=game_key,
                            admin_key=admin_key,
                            play_url=play_url,
-                           admin_url=admin_url)
+                           admin_url=admin_url
+                           )
 
 
 @app.route("/play/<game_key>")
 def play(game_key):
-    base_url = request.base_url
     guess = request.args.get("guess")
     riddle_manager = game_instances.get_game_by_game_key(game_key)
     current_riddle = riddle_manager.get_current_riddle()

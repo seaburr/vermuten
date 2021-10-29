@@ -60,8 +60,14 @@ class GameInstanceManager(object):
             raise GameInstanceException
 
     def delete_game_instance(self, game_key, admin_key):
+        logging.warning(f"Deleting game {game_key}")
         self.game_instances.pop(game_key)
         self.game_admins.pop(admin_key)
+
+    def delete_oldest_game(self):
+        game_key = list(self.game_instances.keys())[0]
+        admin_key = list(self.game_admins.keys())[0]
+        self.delete_game_instance(game_key, admin_key)
 
 
 

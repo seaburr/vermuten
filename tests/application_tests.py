@@ -175,6 +175,16 @@ class GameInstanceManageTests(unittest.TestCase):
         self.game_instance_manager.set_game_instance(game_key, admin_key, self.DUMMY_GAME)
         self.assertEqual(self.game_instance_manager.get_game_key_by_admin_key(admin_key), game_key)
 
+    def test_delete_game(self):
+        game_key, admin_key = self.game_instance_manager.get_game_key_set()
+        self.game_instance_manager.set_game_instance(game_key, admin_key, self.DUMMY_GAME)
+        self.game_instance_manager.delete_game_instance(game_key, admin_key)
+
+    def test_delete_oldest_game(self):
+        game_key, admin_key = self.game_instance_manager.get_game_key_set()
+        self.game_instance_manager.set_game_instance(game_key, admin_key, self.DUMMY_GAME)
+        self.game_instance_manager.delete_oldest_game()
+
 
 
 
