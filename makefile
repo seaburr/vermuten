@@ -2,6 +2,13 @@ ifndef VERMUTEN_CONFIG
 override VERMUTEN_CONFIG = demo.json
 endif
 
+default: help
+
+help:
+	@echo run: Runs tests and starts Gunicorn (NOT supported on Windows.)
+	@echo win-run: Runs tests and starts Waiter.
+	@echo test: Runs unit tests.
+	@echo apply-formatting: Runs Black and ensures code is conformant with PEP."
 test:
 	python3 -m unittest discover tests "*_tests.py"
 

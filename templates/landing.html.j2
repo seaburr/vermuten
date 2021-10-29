@@ -1,0 +1,17 @@
+<!doctype html>
+
+<html>
+<head>
+    <title>New Game Creation</title>
+</head>
+<link rel="stylesheet" href="./static/style.css">
+<h1>
+    Welcome to Vermuten!
+</h1>
+<h2>
+    Game Key: {{ game_key }} | Admin Key: {{ admin_key }}
+</h2>
+Your players game key is <b>{{ game_key }}</b>. You can send them <a href="{{ play_url }}" target="_blank" rel="noopener noreferrer">this link</a> (automatically opens a new tab).
+<br>
+Your admin key for this game is <b>{{ admin_key }}</b>. Do not share this key. <a href="{{ admin_url }}" target="_blank" rel="noopener noreferrer">Click here</a> to see your players progress and manage the game (automatically opens a new tab).
+</html>

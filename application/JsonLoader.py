@@ -16,7 +16,7 @@ class ConfigLoader(object):
 
     def _load_config(self):
         try:
-            logging.info(f"Loading {self.path_to_json_config}.")
+            logging.info(f"Loading {self.path_to_json_config}")
             config_file = open(self.path_to_json_config, "r")
             json_config = json.loads(config_file.read())
             config_file.close()
@@ -38,7 +38,7 @@ class ConfigLoader(object):
                     completion_image_name
                 )
                 self.riddle_collection[len(self.riddle_collection)] = riddle_object
-            logging.info(f"Successfully loaded {self.path_to_json_config}.")
+            logging.info(f"Successfully loaded {self.path_to_json_config}")
             logging.info(f"Riddle count: {len(self.riddle_collection)}")
             logging.info(f"Incorrect response count: {len(incorrect_responses)}")
             logging.info(f"Correct response count: {len(correct_responses)}")

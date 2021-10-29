@@ -6,7 +6,7 @@
 </head>
 <link rel="stylesheet" href="./static/style.css">
 <h1>
-    Progress Report for Game: {{ game_key }}
+    Progress Report for Game (ID: {{ game_key }})
 </h1>
 <h2>
     Riddle Progress: {{ current_riddle_number }} of {{ riddle_count }}
@@ -18,11 +18,10 @@
     Total number of attempts: {{ attempts }}
 </h2>
 <div class="center">
-    <a href="/admin/{{ game_key }}" class="button">Refresh</a>
+    <a href="/admin/{{ admin_key }}" class="button">Refresh</a>
 </div>
 <br>
-<br>
 <div class="center">
-    <a href="/admin/{{ game_key }}/reset" class="button">Restart Game</a>
+    <a href="/admin/{{ admin_key }}/reset" class="button">Restart Game</a>
 </div>
 </html>

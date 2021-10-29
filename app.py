@@ -27,7 +27,11 @@ def riddle():
     game_instances.set_game_instance(game_key, admin_key, game)
     play_url = url_for("play", game_key=game_key)
     admin_url = url_for("progress", admin_key=admin_key)
-    return f"Game key is <b>{game_key}</b> and admin key is <b>{admin_key}</b>. Go to {play_url} to play.<br>Go to {admin_url} to manage."
+    return render_template("landing.html.j2",
+                           game_key=game_key,
+                           admin_key=admin_key,
+                           play_url=play_url,
+                           admin_url=admin_url)
 
 
 @app.route("/play/<game_key>")
@@ -86,12 +90,12 @@ def reset_admin_page(admin_key):
 
 @app.route("/admin/<admin_key>")
 def progress(admin_key):
-    base_url = request.base_url
     riddle_manager = game_instances.get_game_by_admin_key(admin_key)
     game_key = game_instances.get_game_key_by_admin_key(admin_key)
     return render_template(
         "progress.html.j2",
         game_key=game_key,
+        admin_key=admin_key,
         current_riddle_number=riddle_manager.get_current_riddle_number(),
         riddle_count=riddle_manager.get_riddle_count(),
         current_riddle=riddle_manager.get_current_riddle().get_riddle(),
