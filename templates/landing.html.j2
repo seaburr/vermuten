@@ -13,5 +13,31 @@
 </h2>
 Your players game key is <b>{{ game_key }}</b>. You can send them <a href="{{ play_url }}" target="_blank" rel="noopener noreferrer">this link</a> (automatically opens a new tab).
 <br>
-Your admin key for this game is <b>{{ admin_key }}</b>. Do not share this key. <a href="{{ admin_url }}" target="_blank" rel="noopener noreferrer">Click here</a> to see your players progress and manage the game (automatically opens a new tab).
+Your admin key for this game is <b>{{ admin_key }}</b>. Do not share this key. <a href="{{ admin_url }}" target="_blank" rel="noopener noreferrer">Click here</a> to see your players progress, add riddles, and manage the game (automatically opens a new tab).
+<h2>
+    Riddles
+</h2>
+<form action="/admin/{{ admin_key }}/add_riddles">
+  <label for="guess">Riddle #1:</label>
+  <input type="text" id="riddle_1" name="riddle_1" autocomplete="off">
+  <br>
+  <label for="guess">Answer #1:</label>
+  <input type="text" id="answer_1" name="answer_1" autocomplete="off">
+  <br>
+    <label for="guess">Riddle #2:</label>
+  <input type="text" id="riddle_2" name="riddle_2" autocomplete="off">
+  <br>
+  <label for="guess">Answer #2:</label>
+  <input type="text" id="answer_2" name="answer_2" autocomplete="off">
+  <br>
+    <label for="guess">Riddle #3:</label>
+  <input type="text" id="riddle_3" name="riddle_3" autocomplete="off">
+  <br>
+  <label for="guess">Answer #3:</label>
+  <input type="text" id="answer_3" name="answer_3" autocomplete="off">
+  <br>
+  <input type="submit" value="Start Game">
+
+</form>
+
 </html>

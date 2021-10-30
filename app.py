@@ -5,7 +5,7 @@ from flask import request
 from flask import redirect
 from flask import url_for
 from flask import render_template
-from application.JsonLoader import ConfigLoader
+from application.Riddle import RiddleManager
 from application.GameInstance import GameInstanceManager
 
 logging_format = (
@@ -22,8 +22,7 @@ game_instances = GameInstanceManager(max_games)
 @app.route("/")
 def riddle():
     game_key, admin_key = game_instances.get_game_key_set()
-    config_loader = ConfigLoader(config_file)
-    game = config_loader.get_riddle_manager()
+    game = RiddleManager(None)
     try:
         game_instances.set_game_instance(game_key, admin_key, game)
     except:
@@ -81,7 +80,7 @@ def play(game_key):
 
 @app.route("/<game_key>/restart")
 def reset(game_key):
-    riddle_manager = game_instances.get_game(game_key)
+    riddle_manager = game_instances.get_game_by_game_key(game_key)
     riddle_manager.reset_progress()
     return redirect(url_for("play", game_key=game_key))
 
@@ -97,15 +96,31 @@ def reset_admin_page(admin_key):
 def progress(admin_key):
     riddle_manager = game_instances.get_game_by_admin_key(admin_key)
     game_key = game_instances.get_game_key_by_admin_key(admin_key)
+    play_url = url_for("play", game_key=game_key)
     return render_template(
         "progress.html.j2",
         game_key=game_key,
         admin_key=admin_key,
+        play_url=play_url,
         current_riddle_number=riddle_manager.get_current_riddle_number(),
         riddle_count=riddle_manager.get_riddle_count(),
         current_riddle=riddle_manager.get_current_riddle().get_riddle(),
         attempts=riddle_manager.get_total_attempt_count()
     )
+
+
+@app.route("/admin/<admin_key>/add_riddles")
+def add_riddles(admin_key):
+    riddle_manager = game_instances.get_game_by_admin_key(admin_key)
+    new_riddles = dict()
+    new_riddles[request.args.get("riddle_1")] = request.args.get("answer_1")
+    new_riddles[request.args.get("riddle_2")] = request.args.get("answer_2")
+    new_riddles[request.args.get("riddle_3")] = request.args.get("answer_3")
+    for question, answer in new_riddles.items():
+        if question is not None or question not in ["", " "]:
+            logging.info(f"Creating a new riddle: {question}, answer: {answer}")
+            riddle_manager.add_basic_riddle(question, answer)
+    return redirect(url_for("progress", admin_key=admin_key))
 
 
 if __name__ == "__main__":

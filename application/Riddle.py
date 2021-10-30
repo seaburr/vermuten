@@ -105,3 +105,11 @@ class RiddleManager(object):
         self.current_riddle_index = 0
         for riddle_id, riddle in self.riddles.items():
             riddle.reset_attempts()
+
+    def add_basic_riddle(self, riddle, answer):
+        new_riddle = Riddle(riddle, [answer], None, None, None, ["Try again."], "You have finished the puzzle!", None)
+        if self.riddles is None:
+            self.riddles = dict()
+            self.riddles[0] = new_riddle
+        else:
+            self.riddles[len(self.riddles)] = new_riddle

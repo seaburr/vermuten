@@ -18,10 +18,16 @@
     Total number of attempts: {{ attempts }}
 </h2>
 <div class="center">
-    <a href="/admin/{{ admin_key }}" class="button">Refresh</a>
+    <a href="/admin/{{ admin_key }}" class="button">Refresh Status</a>
+</div>
+<div class="center">
+    <a href="{{ play_url }}" class="button" target="_blank" rel="noopener noreferrer">Game URL</a> (opens a new tab.)
 </div>
 <br>
+<br>
+<bbr>
 <div class="center">
-    <a href="/admin/{{ admin_key }}/reset" class="button">Restart Game</a>
+    <a href="/admin/{{ admin_key }}/reset" class="button">Restart/Reset Game</a>
 </div>
+
 </html>
