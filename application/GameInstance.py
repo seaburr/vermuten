@@ -23,7 +23,7 @@ class GameInstanceManager(object):
             for i in range(self.GAME_KEY_LENGTH):
                 i -= 1
                 new_game_key += "".join(random.choice(string.hexdigits))
-        self.used_keys.append(new_game_key)
+        self.used_keys.append(new_game_key.lower())
         return new_game_key.lower()
 
     def get_game_key_set(self):
@@ -63,11 +63,12 @@ class GameInstanceManager(object):
         logging.warning(f"Deleting game {game_key}")
         self.game_instances.pop(game_key)
         self.game_admins.pop(admin_key)
+        self.used_keys.remove(game_key)
+        self.used_keys.remove(admin_key)
 
     def delete_oldest_game(self):
         game_key = list(self.game_instances.keys())[0]
         admin_key = list(self.game_admins.keys())[0]
         self.delete_game_instance(game_key, admin_key)
-
 
 

@@ -78,6 +78,9 @@ class RiddleManagerTests(unittest.TestCase):
     COMPLETION_MESSAGE = "done"
     COMPLETION_IMAGE_NAME = "all_done.png"
 
+    BASIC_RIDDLE = "basic riddle"
+    BASIC_ANSWER = "basic answer"
+
     def setUp(self):
         self.riddle = Riddle(
             self.RIDDLE,
@@ -124,6 +127,14 @@ class RiddleManagerTests(unittest.TestCase):
 
     def test_get_riddle_count(self):
         self.assertEqual(self.riddle_manager.get_riddle_count(), 1)
+
+    def test_add_basic_riddle(self):
+        self.riddle_manager.add_basic_riddle(self.BASIC_RIDDLE, self.BASIC_ANSWER)
+        self.assertEqual(self.riddle_manager.get_riddle_count(), 2)
+        self.riddle_manager.next_riddle()
+        riddle = self.riddle_manager.get_current_riddle()
+        self.assertEqual(riddle.get_riddle(), self.BASIC_RIDDLE)
+        self.assertTrue(riddle.test_answer(self.BASIC_ANSWER))
 
 
 class JsonLoaderTests(unittest.TestCase):
@@ -183,7 +194,9 @@ class GameInstanceManageTests(unittest.TestCase):
     def test_delete_oldest_game(self):
         game_key, admin_key = self.game_instance_manager.get_game_key_set()
         self.game_instance_manager.set_game_instance(game_key, admin_key, self.DUMMY_GAME)
+        self.assertEqual(len(self.game_instance_manager.game_instances), 1)
         self.game_instance_manager.delete_oldest_game()
+        self.assertEqual(len(self.game_instance_manager.game_instances), 0)
 
 
 
