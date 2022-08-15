@@ -13,6 +13,8 @@ logging_format = (
 )
 logging.basicConfig(level=logging.INFO, format=logging_format)
 
+
+# Fixing a whitespace issue to test GitHub PRs.
 app = Flask(__name__)
 config_file = os.getenv("VERMUTEN_CONFIG")
 config_loader = ConfigLoader(config_file)
