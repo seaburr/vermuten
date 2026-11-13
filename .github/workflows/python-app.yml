@@ -24,6 +24,12 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Run unit tests
+    - name: Lint with black
       run: |
-        python3 -m unittest discover tests "*_tests.py"
+        pip install black
+        black --check .
+    - name: Run unit tests
+      env:
+        VERMUTEN_CONFIG: demo.json
+      run: |
+        python3 -m unittest discover tests "test_vermuten.py"

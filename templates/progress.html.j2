@@ -4,7 +4,7 @@
 <head>
     <title>Progress Report</title>
 </head>
-<link rel="stylesheet" href="./static/style.css">
+<link rel="stylesheet" href="/static/style.css">
 <h1>
     Progress Report
 </h1>
@@ -18,11 +18,11 @@
     Total number of attempts: {{ attempts }}
 </h2>
 <div class="center">
-    <a href="/admin/progress" class="button">Refresh</a>
+    <a href="/game/{{ game_id }}/admin/progress" class="button">Refresh</a>
 </div>
 <br>
 <br>
 <div class="center">
-    <a href="/admin/reset" class="button">Restart Game</a>
+    <a href="/game/{{ game_id }}/admin/reset" class="button">Restart Game</a>
 </div>
 </html>

@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 from application.Riddle import Riddle, RiddleManager
 
 
@@ -9,17 +8,16 @@ class ConfigLoadException(Exception):
 
 
 class ConfigLoader(object):
-    def __init__(self, path_to_json_config):
-        self.path_to_json_config = path_to_json_config
+    def __init__(self, json_config_file):
+        self.json_config_file = json_config_file
         self.riddle_collection = dict()
         self._load_config()
 
     def _load_config(self):
         try:
-            logging.info(f"Loading {self.path_to_json_config}.")
-            config_file = open(self.path_to_json_config, "r")
-            json_config = json.loads(config_file.read())
-            config_file.close()
+            logging.info(f"Loading config from file.")
+            with open(self.json_config_file, "r") as f:
+                json_config = json.loads(f.read())
             logging.debug(f"Config:\n{json_config}")
             incorrect_responses = json_config["incorrect_responses"]
             correct_responses = json_config["correct_responses"]
@@ -38,7 +36,7 @@ class ConfigLoader(object):
                     completion_image_name,
                 )
                 self.riddle_collection[len(self.riddle_collection)] = riddle_object
-            logging.info(f"Successfully loaded {self.path_to_json_config}.")
+            logging.info(f"Successfully loaded config.")
             logging.info(f"Riddle count: {len(self.riddle_collection)}")
             logging.info(f"Incorrect response count: {len(incorrect_responses)}")
             logging.info(f"Correct response count: {len(correct_responses)}")
@@ -54,5 +52,4 @@ class ConfigLoader(object):
         return riddle_manager
 
     def get_config_file_name(self):
-        filename = os.path.basename(self.path_to_json_config)
-        return filename.split(".")[0]
+        return self.json_config_file

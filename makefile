@@ -3,7 +3,7 @@ override VERMUTEN_CONFIG = demo.json
 endif
 
 test:
-	python3 -m unittest discover tests "*_tests.py"
+	export VERMUTEN_CONFIG=demo.json && python3 -m unittest discover tests "test_vermuten.py"
 
 run: test
 	export VERMUTEN_CONFIG=$(VERMUTEN_CONFIG) && gunicorn app:app
@@ -13,3 +13,7 @@ win-run: test
 
 apply-formatting:
 	black ./
+
+lint:
+	pip3 install black
+	python3 -m black --check ./

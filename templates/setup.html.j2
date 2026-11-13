@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vermuten Setup</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Upload a game file</h1>
+    <form id="upload-form" action="/setup" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".json">
+        <input type="submit" value="Start Game">
+    </form>
+    <div id="game-link"></div>
+
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            fetch('/setup', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const gameLink = document.getElementById('game-link');
+                if (data.game_url) {
+                    const link = document.createElement('a');
+                    link.href = data.game_url;
+                    link.textContent = 'Go to your game';
+                    gameLink.appendChild(link);
+                } else {
+                    gameLink.textContent = 'Error creating game.';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('game-link').textContent = 'Error creating game.';
+            });
+        });
+    </script>
+</body>
+</html>
