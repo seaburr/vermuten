@@ -1,8 +1,10 @@
 import unittest
-from unittest.mock import MagicMock, patch
+import io
+import json
+from unittest.mock import patch
 from app import app
 from application.Riddle import Riddle, RiddleManager
-from application.JsonLoader import ConfigLoader
+from application.JsonLoader import ConfigLoader, ConfigLoadException
 
 
 class TestRiddle(unittest.TestCase):
@@ -220,13 +222,13 @@ class TestApp(unittest.TestCase):
     @patch("app.riddle_manager")
     def test_reset_route(self, mock_riddle_manager):
         mock_riddle_manager.get_current_riddle.return_value = None
-        response = self.app.get("/restart")
+        response = self.app.get("/riddle/restart")
         self.assertEqual(response.status_code, 302)
         mock_riddle_manager.reset_progress.assert_called_once()
 
     @patch("app.riddle_manager")
     def test_reset_admin_page_route(self, mock_riddle_manager):
-        response = self.app.get("/admin/reset")
+        response = self.app.get("/riddle/admin/reset")
         self.assertEqual(response.status_code, 302)
         mock_riddle_manager.reset_progress.assert_called_once()
 
@@ -236,8 +238,96 @@ class TestApp(unittest.TestCase):
         mock_riddle_manager.get_riddle_count.return_value = 10
         mock_riddle_manager.get_current_riddle.return_value = self.riddle
         mock_riddle_manager.get_total_attempt_count.return_value = 5
-        response = self.app.get("/admin/progress")
+        response = self.app.get("/riddle/admin/progress")
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"Riddle Progress: 1 of 10", response.data)
         self.assertIn(b"Current riddle: riddle", response.data)
         self.assertIn(b"Total number of attempts: 5", response.data)
+
+
+def load_demo_config():
+    with open("demo.json", encoding="utf-8") as f:
+        return json.load(f)
+
+
+class TestConfigFromStream(unittest.TestCase):
+    def test_load_from_stream(self):
+        data = json.dumps(load_demo_config()).encode()
+        loader = ConfigLoader(stream=io.BytesIO(data), name="my_game.json")
+        self.assertEqual(len(loader.get_riddles()), 3)
+        self.assertEqual(loader.get_config_file_name(), "my_game")
+
+    def test_answers_are_normalised(self):
+        config = load_demo_config()
+        config["riddles"][0]["answer"] = ["  EGG "]
+        loader = ConfigLoader(stream=io.BytesIO(json.dumps(config).encode()))
+        self.assertTrue(loader.get_riddles()[0].test_answer("Egg"))
+
+    def test_bad_json(self):
+        with self.assertRaises(ConfigLoadException):
+            ConfigLoader(stream=io.BytesIO(b"{not json"))
+
+    def test_bad_shape(self):
+        config = load_demo_config()
+        config["riddles"][1]["answer"] = "candle"
+        with self.assertRaises(ConfigLoadException) as ctx:
+            ConfigLoader(stream=io.BytesIO(json.dumps(config).encode()))
+        self.assertIn("Riddle 2", str(ctx.exception))
+
+
+class TestSetupAndHealth(unittest.TestCase):
+    def setUp(self):
+        self.app = app.test_client()
+
+    def upload(self, data, filename="game.json"):
+        return self.app.post(
+            "/setup",
+            data={"file": (io.BytesIO(data), filename)},
+            content_type="multipart/form-data",
+        )
+
+    def test_healthz(self):
+        response = self.app.get("/healthz")
+        self.assertEqual(response.status_code, 200)
+
+    @patch("app.riddle_manager", None)
+    def test_index_shows_setup_without_config(self):
+        response = self.app.get("/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Upload a game file", response.data)
+
+    def test_upload_and_play(self):
+        response = self.upload(json.dumps(load_demo_config()).encode())
+        self.assertEqual(response.status_code, 200)
+        game_url = response.get_json()["game_url"]
+        self.assertTrue(game_url.startswith("/riddle/"))
+        page = self.app.get(game_url)
+        self.assertEqual(page.status_code, 200)
+        self.assertIn(b"What has to be broken", page.data)
+        answer = self.app.get(game_url + "?guess=egg")
+        self.assertEqual(answer.status_code, 302)
+        page = self.app.get(game_url)
+        self.assertIn(b"Riddle #2", page.data)
+
+    def test_upload_no_file(self):
+        response = self.app.post("/setup", data={})
+        self.assertEqual(response.status_code, 400)
+
+    def test_upload_bad_json(self):
+        response = self.upload(b"{not json")
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("not valid JSON", response.get_json()["error"])
+
+    def test_upload_bad_shape(self):
+        response = self.upload(json.dumps({"riddles": []}).encode())
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("error", response.get_json())
+
+    def test_upload_too_large(self):
+        response = self.upload(b" " * (300 * 1024))
+        self.assertEqual(response.status_code, 413)
+        self.assertIn("error", response.get_json())
+
+    def test_unknown_game(self):
+        response = self.app.get("/riddle/not-a-game/")
+        self.assertEqual(response.status_code, 404)

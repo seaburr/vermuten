@@ -1,2 +1,2 @@
 # A note about test files
-Unit tests, utilizing the unittest framework included with Python **must** have a naming scheme that ends with `_tests.py` to be automatically executed when tests are run. This is the file pattern used to discover unit test classes.
+Unit tests use the unittest framework included with Python. Test files **must** be named `test_*.py` to be found by `python -m unittest` (run from the repository root).

@@ -2,18 +2,25 @@ ifndef VERMUTEN_CONFIG
 override VERMUTEN_CONFIG = demo.json
 endif
 
+PORT ?= 8080
+
+install:
+	pip3 install -r requirements.txt -r requirements-dev.txt
+
 test:
-	export VERMUTEN_CONFIG=demo.json && python3 -m unittest discover tests "test_vermuten.py"
+	python3 -m unittest
 
 run: test
-	export VERMUTEN_CONFIG=$(VERMUTEN_CONFIG) && gunicorn app:app
+	VERMUTEN_CONFIG=$(VERMUTEN_CONFIG) gunicorn --bind 0.0.0.0:$(PORT) --workers 1 --threads 4 app:app
 
-win-run: test
-	set VERMUTEN_CONFIG=$(VERMUTEN_CONFIG) && waitress-serve --listen="127.0.0.1:5000" app:app
+docker-build:
+	docker build --platform linux/amd64 -t vermuten .
+
+docker-run:
+	docker run --rm -p $(PORT):8080 -e VERMUTEN_CONFIG=$(VERMUTEN_CONFIG) vermuten
 
 apply-formatting:
-	black ./
+	python3 -m black .
 
 lint:
-	pip3 install black
-	python3 -m black --check ./
+	python3 -m black --check .

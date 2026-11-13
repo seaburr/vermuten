@@ -2,12 +2,13 @@
 <html>
 <head>
     <title>Vermuten Setup</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <h1>Upload a game file</h1>
-    <form id="upload-form" action="/setup" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".json">
+    <p>A JSON config in the same shape as demo.json, up to {{ max_kb }} KB.</p>
+    <form id="upload-form" action="{{ url_for('setup') }}" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".json,application/json">
         <input type="submit" value="Start Game">
     </form>
     <div id="game-link"></div>
@@ -15,26 +16,26 @@
     <script>
         document.getElementById('upload-form').addEventListener('submit', function(event) {
             event.preventDefault();
-            const formData = new FormData(this);
-            fetch('/setup', {
+            const gameLink = document.getElementById('game-link');
+            gameLink.textContent = '';
+            fetch(this.action, {
                 method: 'POST',
-                body: formData
+                body: new FormData(this)
             })
             .then(response => response.json())
             .then(data => {
-                const gameLink = document.getElementById('game-link');
                 if (data.game_url) {
                     const link = document.createElement('a');
                     link.href = data.game_url;
                     link.textContent = 'Go to your game';
                     gameLink.appendChild(link);
                 } else {
-                    gameLink.textContent = 'Error creating game.';
+                    gameLink.textContent = data.error || 'Error creating game.';
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                document.getElementById('game-link').textContent = 'Error creating game.';
+                gameLink.textContent = 'Error creating game.';
             });
         });
     </script>

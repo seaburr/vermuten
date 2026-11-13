@@ -1,0 +1,14 @@
+.git
+.github
+.DS_Store
+**/__pycache__
+**/*.pyc
+.venv
+venv
+tests
+makefile
+*.md
+*.MD
+Dockerfile
+.dockerignore
+requirements-dev.txt
